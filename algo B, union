@@ -1,0 +1,40 @@
+def dist_b(x, y):
+    return math.sqrt((x[0] - y[0])**2 + (x[1] - y[1])**2)
+
+def rnd_pts_b(m, x_max=100, y_max=100):
+    return [(random.uniform(0, x_max), random.uniform(0, y_max)) for _ in range(m)]
+
+def locate_b(z, j):
+    if z[j] == j:
+        return j
+    return locate_b(z, z[j])
+
+def merge_b(z, w, j, k):
+    root_j = locate_b(z, j)
+    root_k = locate_b(z, k)
+    if root_j != root_k:
+        if w[root_j] < w[root_k]:
+            z[root_j] = root_k
+        elif w[root_j] > w[root_k]:
+            z[root_k] = root_j
+        else:
+            z[root_k] = root_j
+            w[root_j] += 1
+
+def algo_b(p, i):
+    e = [(dist_b(p[j], p[k]), j, k) 
+         for j in range(len(p)) 
+         for k in range(j + 1, len(p))]
+    e.sort()
+    z = list(range(len(p)))
+    w = [0] * len(p)
+    l = []
+    t = 0
+    for d, u, v in e:
+        if i[u] and i[v] and locate_b(z, u) != locate_b(z, v):
+            l.append((u, v, d))
+            t += d
+            merge_b(z, w, u, v)
+            if len(l) == sum(i) - 1:
+                break
+    return l, t
